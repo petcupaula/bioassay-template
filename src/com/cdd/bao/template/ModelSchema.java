@@ -190,15 +190,13 @@ public class ModelSchema
 	// load in previously saved file
 	public static Schema deserialise(File file) throws IOException
 	{
-		try
+		try (FileInputStream istr = new FileInputStream(file))
 		{
-			FileInputStream istr = new FileInputStream(file);
-			Schema schema = deserialise(istr);
-			istr.close();
-			return schema;
+			return deserialise(istr);
 		}
 		catch (IOException ex) {throw new IOException("Loading schema file failed [" + file.getAbsolutePath() + "].", ex);}
 	}
+
 	public static Schema deserialise(InputStream istr) throws IOException
 	{
 		Model model = ModelFactory.createDefaultModel();
@@ -213,9 +211,10 @@ public class ModelSchema
 	// serialisation: writes the schema using RDF "turtle" format, using OWL classes
 	public static void serialise(Schema schema, File file) throws IOException
 	{
-		BufferedOutputStream ostr = new BufferedOutputStream(new FileOutputStream(file));
-		serialise(schema, ostr);
-		ostr.close();
+		try (BufferedOutputStream ostr = new BufferedOutputStream(new FileOutputStream(file)))
+		{
+			serialise(schema, ostr);
+		}
 	}
 	public static void serialise(Schema schema, OutputStream ostr) throws IOException
 	{
